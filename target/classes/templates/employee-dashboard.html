@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Portal | Grand Palace Hotel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #fdf0f2;
+      --card-bg: rgba(255, 245, 247, 0.85);
+      --card-border: #f3c2ce;
+      --primary: #d86a83;
+      --primary-dark: #b84e67;
+      --accent-gold: #d4a373;
+      --text: #4a3539;
+      --text-muted: #8c686e;
+      
+      --btn-bg: linear-gradient(180deg, #ffaec1 0%, #e87a93 100%);
+      --btn-shadow-top: inset 0 2px 2px rgba(255, 255, 255, 0.7);
+      --btn-shadow-bottom: 0 4px 0 #b35269, 0 6px 12px rgba(184, 78, 103, 0.3);
+      --btn-shadow-pressed: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 0 #b35269;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, .brand { font-family: 'Playfair Display', serif; }
+
+    body {
+      background: radial-gradient(circle at top left, #ffe3e8, #fdf0f2 60%, #fbe4d8);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #appContainer {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 270px;
+      background: rgba(255, 248, 249, 0.75);
+      backdrop-filter: blur(16px);
+      border-right: 2px dashed var(--card-border);
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      box-shadow: 5px 0 20px rgba(216, 106, 131, 0.1);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      letter-spacing: 0.5px;
+    }
+
+    .brand i { color: var(--accent-gold); font-size: 1.4rem; }
+    .nav-links { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+
+    .vintage-btn {
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border: 1px solid #e08398;
+      background: var(--btn-bg);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      box-shadow: var(--btn-shadow-top), var(--btn-shadow-bottom);
+      transition: all 0.15s ease;
+      text-decoration: none;
+      justify-content: center;
+    }
+
+    .vintage-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    .vintage-btn:active, .vintage-btn.active {
+      transform: translateY(3px);
+      box-shadow: var(--btn-shadow-pressed);
+      background: linear-gradient(180deg, #e87a93 0%, #d86a83 100%);
+    }
+
+    .nav-btn.inactive {
+      background: linear-gradient(180deg, #fff2f4 0%, #fbdbe1 100%);
+      color: var(--text-muted);
+      border-color: #f0b8c4;
+      text-shadow: none;
+      box-shadow: inset 0 1px 1px #fff, 0 3px 0 #d99aa7;
+    }
+
+    .logout-btn-custom {
+      margin-top: auto;
+      background: linear-gradient(180deg, #fca5a5 0%, #ef4444 100%) !important;
+      border-color: #dc2626 !important;
+      box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.7), 0 4px 0 #991b1b, 0 6px 12px rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .main-content { flex: 1; padding: 2.5rem; overflow-y: auto; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    .header h1 { font-size: 2.2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 1.5rem; }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 2px solid #fce8ec;
+      outline: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 25px rgba(216, 106, 131, 0.12);
+    }
+
+    .glass-card h2 { font-size: 1.3rem; color: var(--primary-dark); margin-bottom: 0.5rem; }
+
+    .emp-profile-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #fce8ec;
+      outline: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2rem;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(216, 106, 131, 0.1);
+    }
+
+    .emp-avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%; object-fit: cover;
+      margin: 0 auto 1rem auto;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .emp-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--primary-dark); }
+    .emp-role { font-size: 0.85rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 1.2rem; text-transform: uppercase; }
+
+    .emp-details {
+      font-size: 0.85rem; color: var(--text-muted);
+      text-align: left; display: flex; flex-direction: column; gap: 0.5rem;
+      padding: 1rem; background: #fdf5f6;
+      border-radius: 14px; border: 1px dashed var(--card-border);
+    }
+
+    .emp-details div { display: flex; justify-content: space-between; word-break: break-word; }
+    .emp-details strong { color: var(--text); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px dashed var(--card-border); font-size: 0.9rem; }
+    th { color: var(--primary-dark); font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; background: rgba(253, 240, 242, 0.6); }
+
+    .badge { padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-present { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .badge-halfday { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+    .badge-absent { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+  </style>
+</head>
+<body>
+
+  <div id="appContainer">
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="brand"><i class="fa-solid fa-crown"></i> Grand Palace</div>
+      <ul class="nav-links">
+        <li><button class="vintage-btn nav-btn active" onclick="switchTab('profileTab', this)"><i class="fa-solid fa-user"></i> My Profile</button></li>
+        <li><button class="vintage-btn nav-btn inactive" onclick="switchTab('attendanceTab', this)"><i class="fa-solid fa-calendar-check"></i> My Attendance</button></li>
+        <li><button class="vintage-btn nav-btn inactive" onclick="switchTab('payrollTab', this)"><i class="fa-solid fa-coins"></i> My Payroll</button></li>
+      </ul>
+      <a href="/logout" class="vintage-btn logout-btn-custom"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+      
+      <!-- PROFILE TAB -->
+      <div id="profileTab" class="tab-section active">
+        <div class="header"><h1>Employee Dashboard</h1></div>
+        <div id="profileContainer">
+          <p style="text-align: center; color: var(--text-muted);">Loading your profile data...</p>
+        </div>
+      </div>
+
+      <!-- ATTENDANCE TAB -->
+      <div id="attendanceTab" class="tab-section">
+        <div class="header"><h1>My Attendance Records</h1></div>
+        <div class="glass-card">
+          <h2><i class="fa-solid fa-file-invoice"></i> Attendance Log History</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Log ID</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTable">
+              <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Loading attendance...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAYROLL TAB -->
+      <div id="payrollTab" class="tab-section">
+        <div class="header"><h1>My Payroll Summary</h1></div>
+        <div class="glass-card">
+          <h2>Salary & Compensation Details</h2>
+          <div id="payrollContainer">
+            <p style="text-align: center; color: var(--text-muted);">Loading payroll...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    let currentEmployeeData = null;
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        if (!b.classList.contains('logout-btn-custom')) {
+          b.classList.remove('active');
+          b.classList.add('inactive');
+        }
+      });
+      
+      document.getElementById(tabId).classList.add('active');
+      if (btn && !btn.classList.contains('logout-btn-custom')) {
+        btn.classList.remove('inactive');
+        btn.classList.add('active');
+      }
+
+      if (tabId === 'attendanceTab') fetchMyAttendance();
+      if (tabId === 'payrollTab') fetchMyPayroll();
+    }
+
+    async function fetchMyProfile() {
+      try {
+        // First try standard endpoint
+        let res = await fetch(`${API_BASE}/employee/me`);
+        if (res.ok) {
+          currentEmployeeData = await res.json();
+        } else {
+          // Fallback: Fetch all employees and pick the first one or match session
+          const allRes = await fetch(`${API_BASE}/employees`);
+          const allEmps = await allRes.json();
+          if (allEmps && allEmps.length > 0) {
+            currentEmployeeData = allEmps[0]; // defaults to first employee if direct session endpoint is pending
+          }
+        }
+
+        if (currentEmployeeData) {
+          renderProfile(currentEmployeeData);
+        } else {
+          throw new Error("No employee found");
+        }
+      } catch(err) {
+        console.error("Error loading profile", err);
+        document.getElementById('profileContainer').innerHTML = `<p style="color: var(--primary-dark); text-align: center;">Unable to load profile data. Please make sure you are registered in the admin panel.</p>`;
+      }
+    }
+
+    function renderProfile(emp) {
+      const container = document.getElementById('profileContainer');
+      container.innerHTML = `
+        <div class="emp-profile-card">
+          <img class="emp-avatar" src="${emp.photo || 'https://via.placeholder.com/150'}" alt="${emp.name}">
+          <div class="emp-name">${emp.name}</div>
+          <div class="emp-role">${emp.role || 'Staff'} • ${emp.dept || 'General'}</div>
+          
+          <div class="emp-details">
+            <div><span>Employee ID:</span> <strong>#EMP-${emp.id}</strong></div>
+            <div><span>Email:</span> <strong>${emp.email || 'N/A'}</strong></div>
+            <div><span>Phone:</span> <strong>${emp.phone || 'N/A'}</strong></div>
+            <div><span>Emergency Contact:</span> <strong>${emp.emergencyContact || 'N/A'}</strong></div>
+            <div><span>Reports To:</span> <strong>${emp.reportsTo || 'N/A'}</strong></div>
+            <div><span>Work Location:</span> <strong>${emp.workLocation || 'HQ'}</strong></div>
+            <div><span>Employment Status:</span> <strong>${emp.status || 'Active'}</strong></div>
+            <div><span>Hire Date:</span> <strong>${emp.hireDate || 'N/A'}</strong></div>
+            <div><span>Base Monthly Salary:</span> <strong>₹${emp.baseSalary || 0}</strong></div>
+            <div><span>Bank Account:</span> <strong>${emp.bankName || 'N/A'} (${emp.accountNumber || 'N/A'})</strong></div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function fetchMyAttendance() {
+      if (!currentEmployeeData) return;
+      try {
+        const res = await fetch(`${API_BASE}/attendance/employee/${currentEmployeeData.id}`);
+        const logs = await res.json();
+        
+        const tbody = document.getElementById('attendanceTable');
+        tbody.innerHTML = '';
+
+        if (!logs || logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">No attendance records found.</td></tr>';
+          return;
+        }
+
+        logs.forEach(a => {
+          let badgeClass = 'badge-present';
+          if (a.status === 'Half Day') badgeClass = 'badge-halfday';
+          if (a.status === 'Absent') badgeClass = 'badge-absent';
+
+          tbody.innerHTML += `
+            <tr>
+              <td>#${a.id}</td>
+              <td>${a.date}</td>
+              <td><span class="badge ${badgeClass}">${a.status}</span></td>
+            </tr>
+          `;
+        });
+      } catch(err) {
+        console.error("Error fetching attendance", err);
+      }
+    }
+
+    async function fetchMyPayroll() {
+      if (!currentEmployeeData) return;
+      try {
+        const res = await fetch(`${API_BASE}/payroll`);
+        const payrolls = await res.json();
+        const myPayroll = payrolls.find(p => p.empId === currentEmployeeData.id);
+
+        const container = document.getElementById('payrollContainer');
+        if (!myPayroll) {
+          container.innerHTML = `<p style="color: var(--text-muted); font-style: italic; text-align: center;">Payroll details not available yet.</p>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="emp-details" style="max-width: 400px; margin: 0 auto; font-size: 0.95rem; gap: 0.75rem;">
+            <div><span>Staff ID:</span> <strong>#${myPayroll.empId}</strong></div>
+            <div><span>Name:</span> <strong>${myPayroll.name}</strong></div>
+            <div><span>Role:</span> <strong>${myPayroll.role}</strong></div>
+            <div><span>Base Monthly Salary:</span> <strong>₹${myPayroll.baseSalary}</strong></div>
+            <div><span>Total Days Worked:</span> <strong>${myPayroll.daysWorked} Days</strong></div>
+            <hr style="border: 0; border-top: 1px dashed var(--card-border); margin: 0.2rem 0;">
+            <div><span>Net Salary Payable:</span> <strong style="color: var(--primary-dark); font-size: 1.1rem;">₹${myPayroll.netSalary}</strong></div>
+          </div>
+        `;
+      } catch(err) {
+        console.error("Error fetching payroll", err);
+      }
+    }
+
+    fetchMyProfile();
+  </script>
+</body>
+</html>

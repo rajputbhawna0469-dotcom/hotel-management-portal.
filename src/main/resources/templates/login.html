@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grand Palace | Portal Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #fdf0f2;
+            --card-bg: rgba(255, 245, 247, 0.85);
+            --card-border: #f3c2ce;
+            --primary: #d86a83;
+            --primary-dark: #b84e67;
+            --accent-gold: #d4a373;
+            --text: #4a3539;
+            --text-muted: #8c686e;
+            --error-bg: #ffebee;
+            --error-text: #c62828;
+            
+            --btn-bg: linear-gradient(180deg, #ffaec1 0%, #e87a93 100%);
+            --btn-shadow-top: inset 0 2px 2px rgba(255, 255, 255, 0.7);
+            --btn-shadow-bottom: 0 4px 0 #b35269, 0 6px 12px rgba(184, 78, 103, 0.3);
+            --btn-shadow-pressed: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 0 #b35269;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1, h2, h3, .brand, .logo-area h2 { font-family: 'Playfair Display', serif; }
+
+        body {
+            background: radial-gradient(circle at top left, #ffe3e8, #fdf0f2 60%, #fbe4d8);
+            color: var(--text);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 440px;
+            padding: 40px;
+            border: 3px double var(--card-border);
+            border-radius: 36px;
+            box-shadow: 0 20px 50px rgba(216, 106, 131, 0.25);
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-area h2 {
+            margin: 0;
+            color: var(--primary-dark);
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .logo-area p {
+            margin: 5px 0 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            font-size: 14px;
+            color: var(--text);
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(216, 106, 131, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e08398;
+            background: var(--btn-bg);
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            box-shadow: var(--btn-shadow-top), var(--btn-shadow-bottom);
+            transition: all 0.15s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover { 
+            filter: brightness(1.05); 
+            transform: translateY(-1px); 
+        }
+
+        .btn-submit:active {
+            transform: translateY(3px);
+            box-shadow: var(--btn-shadow-pressed);
+            background: linear-gradient(180deg, #e87a93 0%, #d86a83 100%);
+        }
+
+        .error-box {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #fca5a5;
+            font-weight: 600;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo-area">
+            <h2>👑 Grand Palace</h2>
+            <p>Hotel Management & Employee System</p>
+        </div>
+
+        <div th:if="${error}" class="error-box" th:text="${error}">
+            Invalid credentials!
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="email">Institutional / Official Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email ID" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Sign In</button>
+        </form>
+
+        <div class="footer-text">
+            &copy; 2026 Grand Palace Portal Security
+        </div>
+    </div>
+</body>
+</html>

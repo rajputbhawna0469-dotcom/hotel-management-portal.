@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Grand Palace Hotel Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #fdf0f2;
+      --card-bg: rgba(255, 245, 247, 0.85);
+      --card-border: #f3c2ce;
+      --primary: #d86a83;
+      --primary-dark: #b84e67;
+      --accent-gold: #d4a373;
+      --text: #4a3539;
+      --text-muted: #8c686e;
+      
+      --btn-bg: linear-gradient(180deg, #ffaec1 0%, #e87a93 100%);
+      --btn-shadow-top: inset 0 2px 2px rgba(255, 255, 255, 0.7);
+      --btn-shadow-bottom: 0 4px 0 #b35269, 0 6px 12px rgba(184, 78, 103, 0.3);
+      --btn-shadow-pressed: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 0 #b35269;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, .brand { font-family: 'Playfair Display', serif; }
+
+    body {
+      background: radial-gradient(circle at top left, #ffe3e8, #fdf0f2 60%, #fbe4d8);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* MAIN APP LAYOUT */
+    #appContainer {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 270px;
+      background: rgba(255, 248, 249, 0.75);
+      backdrop-filter: blur(16px);
+      border-right: 2px dashed var(--card-border);
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      box-shadow: 5px 0 20px rgba(216, 106, 131, 0.1);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      letter-spacing: 0.5px;
+    }
+
+    .brand i { color: var(--accent-gold); font-size: 1.4rem; }
+    .nav-links { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+
+    .vintage-btn {
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border: 1px solid #e08398;
+      background: var(--btn-bg);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      box-shadow: var(--btn-shadow-top), var(--btn-shadow-bottom);
+      transition: all 0.15s ease;
+      text-decoration: none;
+      justify-content: center;
+    }
+
+    .vintage-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    .vintage-btn:active, .vintage-btn.active {
+      transform: translateY(3px);
+      box-shadow: var(--btn-shadow-pressed);
+      background: linear-gradient(180deg, #e87a93 0%, #d86a83 100%);
+    }
+
+    .nav-btn.inactive {
+      background: linear-gradient(180deg, #fff2f4 0%, #fbdbe1 100%);
+      color: var(--text-muted);
+      border-color: #f0b8c4;
+      text-shadow: none;
+      box-shadow: inset 0 1px 1px #fff, 0 3px 0 #d99aa7;
+    }
+
+    .logout-btn-custom {
+      margin-top: auto;
+      background: linear-gradient(180deg, #fca5a5 0%, #ef4444 100%) !important;
+      border-color: #dc2626 !important;
+      box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.7), 0 4px 0 #991b1b, 0 6px 12px rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .main-content { flex: 1; padding: 2.5rem; overflow-y: auto; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    .header h1 { font-size: 2.2rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 1.5rem; }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 2px solid #fce8ec;
+      outline: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 25px rgba(216, 106, 131, 0.12);
+    }
+
+    .glass-card h2 { font-size: 1.3rem; color: var(--primary-dark); margin-bottom: 0.5rem; }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #fff;
+      border: 2px solid var(--card-border);
+      padding: 0.75rem 1.25rem;
+      border-radius: 30px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(216, 106, 131, 0.1);
+    }
+
+    .search-box i { color: var(--primary); font-size: 1.1rem; }
+    .search-box input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.2rem;
+    }
+
+    .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .input-group label { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; }
+
+    .input-group input, .input-group select {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 15px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-group input:focus, .input-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(216, 106, 131, 0.2);
+    }
+
+    .btn-submit { grid-column: 1 / -1; justify-content: center; margin-top: 0.5rem; }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .emp-card {
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid #fce8ec;
+      outline: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 1.6rem;
+      text-align: center;
+      position: relative;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(216, 106, 131, 0.1);
+    }
+
+    .emp-avatar {
+      width: 90px; height: 90px;
+      border-radius: 50%; object-fit: cover;
+      margin: 0 auto 0.75rem auto;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .emp-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); }
+    .emp-role { font-size: 0.8rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 1rem; text-transform: uppercase; }
+
+    .emp-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0.75rem 0 0.3rem 0;
+      text-align: left;
+    }
+
+    .emp-details {
+      font-size: 0.8rem; color: var(--text-muted);
+      text-align: left; display: flex; flex-direction: column; gap: 0.4rem;
+      padding: 0.75rem 1rem; background: #fdf5f6;
+      border-radius: 14px; border: 1px dashed var(--card-border);
+    }
+
+    .emp-details div { display: flex; justify-content: space-between; word-break: break-word; }
+    .emp-details strong { color: var(--text); }
+
+    .doc-btn {
+      color: var(--primary-dark);
+      text-decoration: underline;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .doc-btn:hover { color: var(--primary); }
+
+    .card-actions {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-action-vintage {
+      background: linear-gradient(180deg, #ffb3c1 0%, #f77f96 100%);
+      border: 1px solid #e06c85; color: white;
+      width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 2px 0 #b84e67;
+      transition: all 0.15s;
+    }
+    .btn-action-vintage:active { transform: translateY(2px); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px dashed var(--card-border); font-size: 0.9rem; }
+    th { color: var(--primary-dark); font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; background: rgba(253, 240, 242, 0.6); }
+
+    .badge { padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .badge-present { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .badge-halfday { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+    .badge-absent { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN DASHBOARD LAYOUT -->
+  <div id="appContainer">
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="brand"><i class="fa-solid fa-crown"></i> Grand Palace</div>
+      <ul class="nav-links">
+        <li><button class="vintage-btn nav-btn active" onclick="switchTab('employeesTab', this)"><i class="fa-solid fa-gem"></i> Employees</button></li>
+        <li><button class="vintage-btn nav-btn inactive" onclick="switchTab('attendanceTab', this)"><i class="fa-solid fa-calendar-check"></i> Attendance</button></li>
+        <li><button class="vintage-btn nav-btn inactive" onclick="switchTab('payrollTab', this)"><i class="fa-solid fa-coins"></i> Payroll</button></li>
+      </ul>
+      <a href="/logout" class="vintage-btn logout-btn-custom"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+      
+      <!-- EMPLOYEES TAB -->
+      <div id="employeesTab" class="tab-section active">
+        <div class="header"><h1>Admin Registry & Compliance</h1></div>
+        
+        <div class="glass-card" id="formCard">
+          <h2 id="formTitle"><i class="fa-solid fa-heart"></i> Add New Employee Details & Portal Password</h2>
+          <form id="empForm" onsubmit="saveEmployee(event)" class="form-grid">
+            <input type="hidden" id="empId">
+
+            <div class="input-group"><label>Full Name</label><input type="text" id="name" required placeholder="Jane Doe"></div>
+            <div class="input-group"><label>Official Email</label><input type="email" id="email" required placeholder="jane.doe@company.com"></div>
+            <div class="input-group"><label>Portal Login Password</label><input type="password" id="password" required placeholder="Set portal password"></div>
+            <div class="input-group"><label>Phone Number</label><input type="text" id="phone" required placeholder="+1 (555) 019-2834"></div>
+            <div class="input-group"><label>Emergency Contact</label><input type="text" id="emergencyContact" required placeholder="John Doe (Spouse)"></div>
+
+            <div class="input-group"><label>Job Title / Designation</label><input type="text" id="role" required placeholder="Senior Manager"></div>
+            <div class="input-group">
+              <label>Department</label>
+              <select id="dept">
+                <option>Front Office</option>
+                <option>Housekeeping</option>
+                <option>Kitchen & Dining</option>
+                <option>Management</option>
+                <option>Product & Design</option>
+              </select>
+            </div>
+            <div class="input-group"><label>Reports To</label><input type="text" id="reportsTo" required placeholder="Alex Smith (VP)"></div>
+            <div class="input-group"><label>Work Location</label><input type="text" id="workLocation" required placeholder="Hotel HQ"></div>
+
+            <div class="input-group"><label>Base Monthly Salary (₹)</label><input type="number" id="baseSalary" required placeholder="45000"></div>
+            <div class="input-group">
+              <label>Status</label>
+              <select id="status">
+                <option>Full-Time Active</option>
+                <option>Part-Time Active</option>
+                <option>On Leave</option>
+              </select>
+            </div>
+            <div class="input-group"><label>Hire Date</label><input type="text" id="hireDate" required placeholder="12 January 2026"></div>
+            <div class="input-group"><label>Tenure</label><input type="text" id="tenure" required placeholder="1 Year"></div>
+            <div class="input-group"><label>Office Keycard ID</label><input type="text" id="keycardId" required placeholder="KC-9942A"></div>
+
+            <div class="input-group"><label>Bank Name</label><input type="text" id="bankName" required placeholder="HDFC Bank"></div>
+            <div class="input-group"><label>Account Holder Name</label><input type="text" id="accountHolder" required placeholder="Jane Doe"></div>
+            <div class="input-group"><label>Account Number</label><input type="text" id="accountNumber" required placeholder="50100234567890"></div>
+            <div class="input-group"><label>IFSC Code</label><input type="text" id="ifscCode" required placeholder="HDFC0001234"></div>
+
+            <div class="input-group"><label>Profile Portrait</label><input type="file" id="photoInput" accept="image/*"></div>
+            <div class="input-group"><label>Employment Contract File</label><input type="file" id="contractInput" accept="image/*,.pdf"></div>
+            <div class="input-group"><label>Tax Form File (W-4)</label><input type="file" id="taxInput" accept="image/*,.pdf"></div>
+            <div class="input-group"><label>NDA Agreement File</label><input type="file" id="ndaInput" accept="image/*,.pdf"></div>
+
+            <div style="grid-column: 1 / -1; display: flex; gap: 1rem;">
+              <button type="submit" class="vintage-btn btn-submit" id="submitBtn"><i class="fa-solid fa-sparkles"></i> Save Full Profile</button>
+              <button type="button" class="vintage-btn btn-submit" id="cancelEditBtn" style="display:none; background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%); border-color: #64748b;" onclick="resetForm()">Cancel Edit</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" onkeyup="filterEmployees()" placeholder="Search employees by name, role, department, bank name, or ID...">
+        </div>
+
+        <div class="grid-cards" id="empGrid"></div>
+      </div>
+
+      <!-- ATTENDANCE TAB -->
+      <div id="attendanceTab" class="tab-section">
+        <div class="header"><h1>Attendance Register</h1></div>
+
+        <div class="glass-card">
+          <h2><i class="fa-solid fa-clock"></i> Record Attendance</h2>
+          <form id="attForm" onsubmit="markAttendance(event)" class="form-grid">
+            <div class="input-group"><label>Select Staff Member</label><select id="attEmpId" required></select></div>
+            <div class="input-group"><label>Date</label><input type="date" id="attDate" required></div>
+            <div class="input-group">
+              <label>Status</label>
+              <select id="attStatus">
+                <option value="Present">Present (Full Day)</option>
+                <option value="Half Day">Half Day (0.5 Day)</option>
+                <option value="Absent">Absent (0 Day)</option>
+              </select>
+            </div>
+            <button type="submit" class="vintage-btn btn-submit"><i class="fa-solid fa-check"></i> Log Attendance</button>
+          </form>
+        </div>
+
+        <div class="glass-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2><i class="fa-solid fa-file-invoice"></i> Individual Attendance Sheet</h2>
+            <div class="input-group" style="width: 280px;">
+              <select id="sheetEmpSelector" onchange="loadIndividualSheet()">
+                <option value="ALL">-- View All Logs --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="search-box" style="margin-bottom: 1rem;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="attSearchInput" onkeyup="filterAttendanceLogs()" placeholder="Search attendance by staff name, ID, date, or status...">
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Log ID</th>
+                <th>Staff ID</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAYROLL TAB -->
+      <div id="payrollTab" class="tab-section">
+        <div class="header"><h1>Payroll Ledger</h1></div>
+        
+        <div class="glass-card">
+          <h2>Monthly Payroll Calculation</h2>
+
+          <div class="search-box" style="margin-top: 1rem; margin-bottom: 1rem;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="payrollSearchInput" onkeyup="filterPayrollData()" placeholder="Search payroll by staff name, ID, role, or salary details...">
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Staff ID</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Base Salary</th>
+                <th>Total Days Worked</th>
+                <th>Net Salary Payable</th>
+              </tr>
+            </thead>
+            <tbody id="payrollTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    let globalEmployeesMap = {};
+    let allEmployeesData = [];
+    let currentAttendanceLogs = [];
+    let currentPayrollData = [];
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        if (!b.classList.contains('logout-btn-custom')) {
+          b.classList.remove('active');
+          b.classList.add('inactive');
+        }
+      });
+      
+      document.getElementById(tabId).classList.add('active');
+      if (btn && !btn.classList.contains('logout-btn-custom')) {
+        btn.classList.remove('inactive');
+        btn.classList.add('active');
+      }
+
+      if (tabId === 'attendanceTab') fetchAttendance();
+      if (tabId === 'payrollTab') fetchPayroll();
+    }
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) resolve('');
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = err => reject(err);
+      });
+    }
+
+    function openDocument(base64Data) {
+      if (!base64Data) {
+        alert('No document uploaded for this employee.');
+        return;
+      }
+      const win = window.open();
+      win.document.write(`<iframe src="${base64Data}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+    }
+
+    async function fetchEmployees() {
+      try {
+        const res = await fetch(`${API_BASE}/employees`);
+        allEmployeesData = await res.json();
+        
+        const select = document.getElementById('attEmpId');
+        const sheetSelector = document.getElementById('sheetEmpSelector');
+        
+        select.innerHTML = '';
+        sheetSelector.innerHTML = '<option value="ALL">-- View All Logs --</option>';
+        globalEmployeesMap = {};
+
+        allEmployeesData.forEach(emp => {
+          globalEmployeesMap[emp.id] = emp.name;
+          select.innerHTML += `<option value="${emp.id}">${emp.name} (#${emp.id})</option>`;
+          sheetSelector.innerHTML += `<option value="${emp.id}">${emp.name}'s Sheet</option>`;
+        });
+
+        renderEmployeeCards(allEmployeesData);
+      } catch(err) {
+        console.error("Error loading employees", err);
+      }
+    }
+
+    function renderEmployeeCards(employees) {
+      const grid = document.getElementById('empGrid');
+      grid.innerHTML = '';
+
+      if (employees.length === 0) {
+        grid.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">No matching employees found.</p>';
+        return;
+      }
+
+      employees.forEach(emp => {
+        grid.innerHTML += `
+          <div class="emp-card">
+            <div class="card-actions">
+              <button class="btn-action-vintage" onclick="editEmployee(${emp.id})" title="Edit Profile"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-action-vintage" onclick="deleteEmployee(${emp.id})" title="Delete Profile"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <img class="emp-avatar" src="${emp.photo || 'https://via.placeholder.com/150'}" alt="${emp.name}">
+            <div class="emp-name">${emp.name}</div>
+            <div class="emp-role">${emp.role || 'Staff'} • ${emp.dept || 'General'}</div>
+            
+            <div class="emp-section-title">[ General & Job Details ]</div>
+            <div class="emp-details">
+              <div><span>Employee ID:</span> <strong>#EMP-${emp.id}</strong></div>
+              <div><span>Email:</span> <strong>${emp.email || 'N/A'}</strong></div>
+              <div><span>Phone:</span> <strong>${emp.phone || 'N/A'}</strong></div>
+              <div><span>Emergency:</span> <strong>${emp.emergencyContact || 'N/A'}</strong></div>
+              <div><span>Reports To:</span> <strong>${emp.reportsTo || 'N/A'}</strong></div>
+              <div><span>Location:</span> <strong>${emp.workLocation || 'HQ'}</strong></div>
+            </div>
+
+            <div class="emp-section-title">[ Employment Status ]</div>
+            <div class="emp-details">
+              <div><span>Status:</span> <strong>${emp.status || 'Active'}</strong></div>
+              <div><span>Hire Date:</span> <strong>${emp.hireDate || 'N/A'}</strong></div>
+              <div><span>Tenure:</span> <strong>${emp.tenure || 'N/A'}</strong></div>
+              <div><span>Keycard ID:</span> <strong>${emp.keycardId || 'N/A'}</strong></div>
+              <div><span>Base Salary:</span> <strong>₹${emp.baseSalary || 0}</strong></div>
+            </div>
+
+            <div class="emp-section-title">[ Bank Details ]</div>
+            <div class="emp-details">
+              <div><span>Bank:</span> <strong>${emp.bankName || 'N/A'}</strong></div>
+              <div><span>Holder:</span> <strong>${emp.accountHolder || 'N/A'}</strong></div>
+              <div><span>Account #:</span> <strong>${emp.accountNumber || 'N/A'}</strong></div>
+              <div><span>IFSC / Code:</span> <strong>${emp.ifscCode || 'N/A'}</strong></div>
+            </div>
+
+            <div class="emp-section-title">[ Documents & Compliance ]</div>
+            <div class="emp-details">
+              <div><span>Contract:</span> <span class="doc-btn" onclick="openDocument('${emp.contractDoc}')">[View Document]</span></div>
+              <div><span>Tax Form:</span> <span class="doc-btn" onclick="openDocument('${emp.taxDoc}')">[View Document]</span></div>
+              <div><span>NDA:</span> <span class="doc-btn" onclick="openDocument('${emp.ndaDoc}')">[View Document]</span></div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function editEmployee(id) {
+      const emp = allEmployeesData.find(e => e.id === id);
+      if (!emp) return;
+
+      document.getElementById('empId').value = emp.id;
+      document.getElementById('name').value = emp.name || '';
+      document.getElementById('email').value = emp.email || '';
+      document.getElementById('password').value = emp.password || '';
+      document.getElementById('phone').value = emp.phone || '';
+      document.getElementById('emergencyContact').value = emp.emergencyContact || '';
+      document.getElementById('role').value = emp.role || '';
+      document.getElementById('dept').value = emp.dept || 'Front Office';
+      document.getElementById('reportsTo').value = emp.reportsTo || '';
+      document.getElementById('workLocation').value = emp.workLocation || '';
+      document.getElementById('baseSalary').value = emp.baseSalary || '';
+      document.getElementById('status').value = emp.status || 'Full-Time Active';
+      document.getElementById('hireDate').value = emp.hireDate || '';
+      document.getElementById('tenure').value = emp.tenure || '';
+      document.getElementById('keycardId').value = emp.keycardId || '';
+      document.getElementById('bankName').value = emp.bankName || '';
+      document.getElementById('accountHolder').value = emp.accountHolder || '';
+      document.getElementById('accountNumber').value = emp.accountNumber || '';
+      document.getElementById('ifscCode').value = emp.ifscCode || '';
+
+      document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit Employee Profile (#EMP-${emp.id})`;
+      document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-check"></i> Update Employee Profile`;
+      document.getElementById('cancelEditBtn').style.display = 'block';
+
+      document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      document.getElementById('empForm').reset();
+      document.getElementById('empId').value = '';
+      document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-heart"></i> Add New Employee Details & Portal Password`;
+      document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-sparkles"></i> Save Full Profile`;
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    function filterEmployees() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allEmployeesData.filter(emp => 
+        emp.name.toLowerCase().includes(query) ||
+        (emp.role && emp.role.toLowerCase().includes(query)) ||
+        (emp.dept && emp.dept.toLowerCase().includes(query)) ||
+        (emp.bankName && emp.bankName.toLowerCase().includes(query)) ||
+        emp.id.toString().includes(query)
+      );
+      renderEmployeeCards(filtered);
+    }
+
+    async function saveEmployee(e) {
+      e.preventDefault();
+      
+      const empIdVal = document.getElementById('empId').value;
+      const photoFile = document.getElementById('photoInput').files[0];
+      const contractFile = document.getElementById('contractInput').files[0];
+      const taxFile = document.getElementById('taxInput').files[0];
+      const ndaFile = document.getElementById('ndaInput').files[0];
+
+      const photoBase64 = await toBase64(photoFile);
+      const contractBase64 = await toBase64(contractFile);
+      const taxBase64 = await toBase64(taxFile);
+      const ndaBase64 = await toBase64(ndaFile);
+
+      const payload = {
+        id: empIdVal ? parseInt(empIdVal) : null,
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        phone: document.getElementById('phone').value,
+        emergencyContact: document.getElementById('emergencyContact').value,
+        role: document.getElementById('role').value,
+        dept: document.getElementById('dept').value,
+        reportsTo: document.getElementById('reportsTo').value,
+        workLocation: document.getElementById('workLocation').value,
+        baseSalary: parseFloat(document.getElementById('baseSalary').value),
+        status: document.getElementById('status').value,
+        hireDate: document.getElementById('hireDate').value,
+        tenure: document.getElementById('tenure').value,
+        keycardId: document.getElementById('keycardId').value,
+        bankName: document.getElementById('bankName').value,
+        accountHolder: document.getElementById('accountHolder').value,
+        accountNumber: document.getElementById('accountNumber').value,
+        ifscCode: document.getElementById('ifscCode').value,
+        photo: photoBase64,
+        contractDoc: contractBase64,
+        taxDoc: taxBase64,
+        ndaDoc: ndaBase64
+      };
+
+      await fetch(`${API_BASE}/employees`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      resetForm();
+      fetchEmployees();
+    }
+
+    async function deleteEmployee(id) {
+      if (confirm('Remove this employee profile?')) {
+        await fetch(`${API_BASE}/employees/${id}`, { method: 'DELETE' });
+        fetchEmployees();
+      }
+    }
+
+    async function markAttendance(e) {
+      e.preventDefault();
+      const selectedEmpId = document.getElementById('attEmpId').value;
+      const payload = {
+        empId: parseInt(selectedEmpId),
+        date: document.getElementById('attDate').value,
+        status: document.getElementById('attStatus').value
+      };
+
+      await fetch(`${API_BASE}/attendance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      document.getElementById('sheetEmpSelector').value = selectedEmpId;
+      loadIndividualSheet();
+    }
+
+    async function loadIndividualSheet() {
+      const selectedEmpId = document.getElementById('sheetEmpSelector').value;
+      let url = `${API_BASE}/attendance`;
+      
+      if (selectedEmpId !== 'ALL') {
+        url = `${API_BASE}/attendance/employee/${selectedEmpId}`;
+      }
+
+      const res = await fetch(url);
+      currentAttendanceLogs = await res.json();
+      filterAttendanceLogs();
+    }
+
+    function filterAttendanceLogs() {
+      const query = document.getElementById('attSearchInput').value.toLowerCase();
+      const filtered = currentAttendanceLogs.filter(a => {
+        const empName = (globalEmployeesMap[a.empId] || '').toLowerCase();
+        const empIdStr = a.empId.toString();
+        const dateStr = (a.date || '').toLowerCase();
+        const statusStr = (a.status || '').toLowerCase();
+
+        return empName.includes(query) || empIdStr.includes(query) || dateStr.includes(query) || statusStr.includes(query);
+      });
+
+      renderAttendanceTable(filtered);
+    }
+
+    async function fetchAttendance() {
+      loadIndividualSheet();
+    }
+
+    function renderAttendanceTable(logs) {
+      const tbody = document.getElementById('attendanceTable');
+      tbody.innerHTML = '';
+
+      if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No attendance logs match your search.</td></tr>';
+        return;
+      }
+
+      logs.forEach(a => {
+        let badgeClass = 'badge-present';
+        if (a.status === 'Half Day') badgeClass = 'badge-halfday';
+        if (a.status === 'Absent') badgeClass = 'badge-absent';
+
+        const empName = globalEmployeesMap[a.empId] || 'Staff Member';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>#${a.id}</td>
+            <td><strong>${empName}</strong> (#${a.empId})</td>
+            <td>${a.date}</td>
+            <td><span class="badge ${badgeClass}">${a.status}</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    async function fetchPayroll() {
+      const res = await fetch(`${API_BASE}/payroll`);
+      currentPayrollData = await res.json();
+      filterPayrollData();
+    }
+
+    function filterPayrollData() {
+      const query = document.getElementById('payrollSearchInput').value.toLowerCase();
+      const filtered = currentPayrollData.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const role = (p.role || '').toLowerCase();
+        const empIdStr = p.empId.toString();
+        const baseSalaryStr = p.baseSalary.toString();
+        const netSalaryStr = p.netSalary.toString();
+
+        return name.includes(query) || role.includes(query) || empIdStr.includes(query) || baseSalaryStr.includes(query) || netSalaryStr.includes(query);
+      });
+
+      renderPayrollTable(filtered);
+    }
+
+    function renderPayrollTable(payrollData) {
+      const tbody = document.getElementById('payrollTable');
+      tbody.innerHTML = '';
+
+      if (payrollData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); font-style: italic;">No payroll records match your search.</td></tr>';
+        return;
+      }
+
+      payrollData.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td>#${p.empId}</td>
+            <td>${p.name}</td>
+            <td>${p.role}</td>
+            <td>₹${p.baseSalary}</td>
+            <td>${p.daysWorked} Days</td>
+            <td><strong>₹${p.netSalary}</strong></td>
+          </tr>
+        `;
+      });
+    }
+
+    document.getElementById('attDate').valueAsDate = new Date();
+    fetchEmployees();
+  </script>
+</body>
+</html>
